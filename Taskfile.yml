@@ -1,6 +1,10 @@
 version: "3"
 
 tasks:
+  # --------------------
+  # Git
+  # --------------------
+
   git:init:
     desc: Initialize Git repository
     cmds:
@@ -29,3 +33,108 @@ tasks:
       - task: git:push
     vars:
       MESSAGE: '{{default "chore: update project" .MESSAGE}}'
+
+  # --------------------
+  # Development
+  # --------------------
+
+  dev:
+    desc: Start development server with hot reload
+    cmds:
+      - air
+
+  build:
+    desc: Build the API
+    cmds:
+      - go build -o bin/api ./cmd/api
+
+  run:
+    desc: Run the API
+    cmds:
+      - go run ./cmd/api
+
+  # --------------------
+  # Testing & Quality
+  # --------------------
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
+  test:verbose:
+    desc: Run tests with verbose output
+    cmds:
+      - go test -v ./...
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - gofmt -w .
+
+  vet:
+    desc: Run Go vet
+    cmds:
+      - go vet ./...
+
+  check:
+    desc: Run formatting, vet, and tests
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: test
+
+  # --------------------
+  # Database
+  # --------------------
+
+  db:up:
+    desc: Apply database migrations
+    cmds:
+      - goose up
+
+  db:down:
+    desc: Roll back the latest migration
+    cmds:
+      - goose down
+
+  db:status:
+    desc: Show database migration status
+    cmds:
+      - goose status
+
+  db:create:
+    desc: Create a new database migration
+    cmds:
+      - goose create {{.NAME}} sql
+    requires:
+      vars:
+        - NAME
+
+  # --------------------
+  # SQLC
+  # --------------------
+
+  sqlc:
+    desc: Generate Go code from SQL
+    cmds:
+      - sqlc generate
+
+  # --------------------
+  # Docker
+  # --------------------
+
+  docker:up:
+    desc: Start Docker Compose services
+    cmds:
+      - docker compose up -d
+
+  docker:down:
+    desc: Stop Docker Compose services
+    cmds:
+      - docker compose down -v
+
+  docker:logs:
+    desc: Show Docker Compose logs
+    cmds:
+      - docker compose logs -f
